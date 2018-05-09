@@ -14,14 +14,13 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.util.ArrayList;
 import java.util.Set;
-import kr.ac.mokwon.ice.myapplication.AceBluetoothSerialService;
-import kr.ac.mokwon.ice.myapplication.BthReceiver;
-import kr.ac.mokwon.ice.myapplication.StringTok;
 
 public class MainActivity extends AppCompatActivity {
     private static final int BTH_ENABLE = 1010;
-    protected String sBthName = "cyprincess";
+    protected String sBthName = "yhcho";
     protected BluetoothAdapter bthAdapter;
     protected BluetoothDevice bthDevice;
     protected BluetoothManager bthManager;
@@ -31,6 +30,7 @@ public class MainActivity extends AppCompatActivity {
     protected EditText edWrite;
     protected TextView txRead;
     protected StringTok stSensorInput = new StringTok("");
+    protected ArrayList<Double> arSensor0, arSensor1, arSensor2;
 
     protected void showMsg(String str) {
         Toast.makeText(this, str, Toast.LENGTH_SHORT).show();
@@ -94,18 +94,18 @@ public class MainActivity extends AppCompatActivity {
 
         btWrite.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
+            public void onClick(View view) {
                 String str = edWrite.getText().toString();
-                bthService.print(str);
+                bthService.println(str);
             }
         });
 
         btRead.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
+            public void onClick(View view) {
                 String str = bthService.getSerialInput();
                 stSensorInput.appendString(str);
-                txRead.setText(stSensorInput.toString());
+                parseSensor(stSensorInput);
             }
         });
 
@@ -126,23 +126,36 @@ public class MainActivity extends AppCompatActivity {
         }
 
         bthService = new AceBluetoothSerialService(this, bthAdapter);
+
+        arSensor0 = new ArrayList<Double>();
+        arSensor1 = new ArrayList<Double>();
+        arSensor2 = new ArrayList<Double>();
     }
-    private void parseSensor(StringTok stSensorInput){
-        while(stSensorInput.hasLine()){
-    String sLine = stSensorInput.cutLine();
-    parseSensorLine(sLine);
+
+    private void parseSensor(StringTok stSensorInput) {
+        while (stSensorInput.hasLine()) {
+            String sLine = stSensorInput.cutLine();
+            parseSensorLine(sLine);
         }
     }
-    private void parseSensorLine(String sLine){
+
+    private void parseSensorLine(String sLine) {
         StringTok stInput = new StringTok(sLine);
-        StringTok stToken = stInput.getToken();
-        if(stToken.toString().equals("getset")){
-            stToken = stInput.getToken();
+        StringTok stToken = stInput.getToken(); // Sensor keyword
+        if (stToken.toString().equals("getsen")) {
+            stToken = stInput.getToken();   // Sensor #
             long nSensor = stToken.toLong();
-            stToken =  stInput.getToken();
+            stToken = stInput.getToken();   // Sensor value
             double sensorVal = stToken.toDouble();
-            showMsg(String.format("%d: %d",nSensor, sensorVal));
+            showMsg(String.format("%d: %g", nSensor, sensorVal));
+            saveSensorVal(nSensor, sensorVal);
         }
+    }
+
+    private void saveSensorVal(long nSensor, double sensorVal) {
+        if (nSensor == 0) arSensor0.add(sensorVal);
+        else if (nSensor == 1) arSensor1.add(sensorVal);
+        else if (nSensor == 2) arSensor2.add(sensorVal);
     }
 
     @Override
