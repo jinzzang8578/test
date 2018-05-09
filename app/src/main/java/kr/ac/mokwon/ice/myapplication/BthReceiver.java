@@ -23,7 +23,7 @@ public class BthReceiver extends BroadcastReceiver {
         if (intent.getAction().equals(BluetoothDevice.ACTION_FOUND)) {
             BluetoothDevice device;
             device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-//            Toast.makeText(context, sName + "is found.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, sName + "is found.", Toast.LENGTH_SHORT).show();
             if (device.getName().equalsIgnoreCase(sName)) {
                 sAddress = device.getAddress();
                 Toast.makeText(context, sName + "is found: " + sAddress, Toast.LENGTH_SHORT).show();
