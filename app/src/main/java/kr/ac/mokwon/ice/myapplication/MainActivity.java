@@ -14,12 +14,14 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import java.util.Set;
+import kr.ac.mokwon.ice.myapplication.AceBluetoothSerialService;
+import kr.ac.mokwon.ice.myapplication.BthReceiver;
+import kr.ac.mokwon.ice.myapplication.StringTok;
 
 public class MainActivity extends AppCompatActivity {
     private static final int BTH_ENABLE = 1010;
-    protected String sBthName = "sujin";
+    protected String sBthName = "cyprincess";
     protected BluetoothAdapter bthAdapter;
     protected BluetoothDevice bthDevice;
     protected BluetoothManager bthManager;
@@ -28,6 +30,7 @@ public class MainActivity extends AppCompatActivity {
     protected Button btFind, btConnect, btRead, btWrite;
     protected EditText edWrite;
     protected TextView txRead;
+    protected StringTok stSensorInput = new StringTok("");
 
     protected void showMsg(String str) {
         Toast.makeText(this, str, Toast.LENGTH_SHORT).show();
@@ -91,9 +94,18 @@ public class MainActivity extends AppCompatActivity {
 
         btWrite.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
+            public void onClick(View v) {
+                String str = edWrite.getText().toString();
+                bthService.print(str);
+            }
+        });
+
+        btRead.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
                 String str = bthService.getSerialInput();
-                txRead.setText(str);
+                stSensorInput.appendString(str);
+                txRead.setText(stSensorInput.toString());
             }
         });
 
